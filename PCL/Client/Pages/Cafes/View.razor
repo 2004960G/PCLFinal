@@ -1,0 +1,17 @@
+﻿@page "/cafes/view/{id:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>View</h3>
+
+
+<FormComponent cafe="cafe" Disabled="true" />
+
+@code {
+     [Parameter] public int id { get; set; }
+     Cafe cafe = new Cafe();
+     protected async override Task OnParametersSetAsync()
+     {
+     cafe = await _client.GetFromJsonAsync<Cafe>($"{Endpoints.CafesEndpoint}/{id}");
+     }
+}

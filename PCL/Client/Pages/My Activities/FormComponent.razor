@@ -1,0 +1,123 @@
+﻿@inject HttpClient _client
+
+<h3>FormComponent</h3>
+<EditForm Model="@myActivity" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <fieldset disabled="@Disabled">
+    <div class="form-group">
+         <label>Movie: </label>
+         <div>
+             <InputSelect @bind-Value="myActivity.MovieId" class="form-control">
+                 <option value="">--Select Movie--</option>
+                 @if (Movies !=null)
+                    {
+                        foreach (var movie in Movies)
+                        {
+                            <option value="@movie.Id">@movie.Name @movie.Status</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=> myActivity.MovieId)" />
+         </div>
+    </div>
+
+ <div class="form-group">
+     <label>Cafe: </label>
+     <div>
+         <InputSelect @bind-Value="myActivity.CafeId" class="form-control">
+             <option value="">--Select Cafe--</option>
+             @if (Cafes !=null)
+                {
+                    foreach (var cafe in Cafes)
+                    {
+                        <option value="@cafe.Id">@cafe.Name @cafe.Status</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(()=> myActivity.CafeId)" />
+     </div>
+ </div>
+ <div class="form-group">
+     <label>Festival: </label>
+     <div>
+         <InputSelect @bind-Value="myActivity.FestivalId" class="form-control">
+             <option value="">--Select Festival--</option>
+             @if (Festivals !=null)
+                {
+                    foreach (var festival in Festivals)
+                    {
+                        <option value="@festival.Id">@festival.Name @festival.Status</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(()=> myActivity.FestivalId)" />
+     </div>
+ </div>
+
+ <div class="form-group">
+     <label>Dinner: </label>
+     <div>
+         <InputSelect @bind-Value="myActivity.DinnerId" class="form-control">
+             <option value="">--Select Dinner--</option>
+             @if (Dinners !=null)
+                {
+                    foreach (var dinner in Dinners)
+                    {
+                        <option value="@dinner.Id">@dinner.Name @dinner.Status</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(()=> myActivity.DinnerId)" />
+     </div>
+ </div>
+
+ <div class="form-group">
+     <label>Year: </label>
+     <div>
+         <InputNumber @bind-Value="@myActivity.Year" class="form-control" />
+         <ValidationMessage For="@(() => myActivity.Year)" />
+     </div>
+ </div>
+ </fieldset>
+
+ @if(!Disabled)
+    {
+        <button type="submit" class="btn btn-sucess btn-block">
+            @ButtonText
+        </button>
+    }
+
+ <button type="Submit" class="btn btn-success btn-block">
+     Create Activities
+ </button>
+
+ 
+</EditForm>
+
+
+
+@code {
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public MyActivity myActivity { get; set; }
+    //[Parameter] public Dinner Dinners { get; set; }
+    //[Parameter] public Cafe cafes { get; set; }
+    //[Parameter] public Festival festivals { get; set; }
+    //[Parameter] public Movie movies { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+
+    private IList<Movie> Movies;
+    private IList<Dinner> Dinners;
+    private IList<Festival> Festivals;
+    private IList<Cafe> Cafes;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Dinners = await _client.GetFromJsonAsync<List<Dinner>>($"{Endpoints.DinnersEndpoint}");
+        Movies = await _client.GetFromJsonAsync<List<Movie>>($"{Endpoints.MoviesEndpoint}");
+        Festivals = await _client.GetFromJsonAsync<List<Festival>>($"{Endpoints.FestivalsEndpoint}");
+        Cafes = await _client.GetFromJsonAsync<List<Cafe>>($"{Endpoints.CafesEndpoint}");
+    }
+
+}

@@ -1,0 +1,76 @@
+﻿@page "/myactivities/"
+@using PCL.Shared.Domain
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+
+<h3>Activities</h3>
+
+<a href="myactivities/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Activity
+</a>
+<br />
+<br />
+
+@if (MyActivities == null)
+{
+    <div class="alert alert-info">Loading MyActivities</div>
+}
+else
+{
+    <table class ="table table-responsive">
+        <thead>
+            <tr>
+                <th>Movie</th>
+                <th>Dinner</th>
+                <th>Cafe</th>
+                <th>Festival</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var myActivity in MyActivities)
+            {
+                <tr>
+                    <td>@myActivity.Movie.Name</td> 
+                    <td>@myActivity.Dinner.Name</td> 
+                    <td>@myActivity.Cafe.Name</td>
+                    <td>@myActivity.Cafe.Status</td>
+                    <td>@myActivity.Festival.Name</td>
+                    <td>
+                        <a href="/myactivities/view/@myActivity.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>    
+                        </a>
+                        <a href="/myactivities/edit/@myActivity.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>    
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(()=>Delete(myActivity.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<MyActivity> MyActivities;
+
+    protected async override Task OnInitializedAsync()
+    {
+        MyActivities = await _client.GetFromJsonAsync<List<MyActivity>>($"{Endpoints.MyActivitiesEndpoint}");
+    }
+
+    async Task Delete(int myActivityId)
+    {
+        var myActivity = MyActivities.First(q => q.Id == myActivityId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {myActivity.Year}?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.MyActivitiesEndpoint}/{myActivityId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

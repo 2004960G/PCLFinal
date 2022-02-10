@@ -1,0 +1,43 @@
+<EditForm Model="@cafe" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary/>
+   
+    <fieldset disabled="@Disabled">
+        <div class="form-group">
+            <label>Name: </label>
+            <div>
+                <InputText @bind-Value="@cafe.Name" class="form-control" />
+                <ValidationMessage For="@(() => cafe.Name)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description: </label>
+            <div>
+                <InputText @bind-Value="@cafe.Description" class="form-control" />
+                <ValidationMessage For="@(() => cafe.Description)" />
+            </div>
+        </div>
+    </fieldset>
+
+    @if(!Disabled)
+    {
+        <button type="submit" class="btn btn-sucess btn-block">
+            @ButtonText
+        </button>
+    }
+    <BackToList Target ="cafes" />
+</EditForm>
+
+@*@if (!Disabled)
+{
+    <button type="submit" class="btn btn-success btn-block">
+        @ButtonText
+    </button>
+}*@
+
+@code {
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public Cafe cafe { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set;}
+}

@@ -1,0 +1,18 @@
+﻿@page "/cafes/create"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>Create</h3>
+
+<FormComponent ButtonText="Create Cafe" cafe="cafe" OnValidSubmit="@CreateCafe" />
+
+@code {
+    Cafe cafe = new Cafe();
+
+    private async Task CreateCafe()
+    {
+        await _client.PostAsJsonAsync(Endpoints.CafesEndpoint, cafe);
+        _navManager.NavigateTo("/cafes/");
+    }
+
+}

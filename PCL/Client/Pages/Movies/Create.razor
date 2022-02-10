@@ -1,0 +1,19 @@
+﻿@page "/movies/create"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>Enter Your Own Movie that you want to watch</h3>
+<h4>Enter Your Own Movies. Do note that the cost of the movies are not covered by Cupids Love </h4>
+
+<FormComponent ButtonText="Create Movie" movie="movie" OnValidSubmit="@CreateMovie" />
+
+@code {
+    Movie movie = new Movie();
+
+    private async Task CreateMovie()
+    {
+        await _client.PostAsJsonAsync(Endpoints.MoviesEndpoint, movie);
+        _navManager.NavigateTo("/movies/");
+    }
+
+}

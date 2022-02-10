@@ -1,0 +1,21 @@
+﻿@page "/applicants/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3 class="card-title">Create New Applicant</h3>
+<hr />
+<br />
+
+<FormComponent ButtonText="Create Applicant" applicant="applicant" OnValidSubmit="@CreateApplicant" />
+
+
+@code {
+     Applicant applicant = new Applicant();
+
+    private async Task CreateApplicant()
+    {
+        await _client.PostAsJsonAsync(Endpoints.ApplicantsEndpoint, applicant);
+        _navManager.NavigateTo("/applicants/");
+    }
+
+}

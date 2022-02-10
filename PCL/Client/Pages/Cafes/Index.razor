@@ -1,0 +1,82 @@
+﻿@page "/cafes/"
+@inject HttpClient _client
+@inject HttpInterceptorService _interceptor
+@*@implements IDisposable*@
+@inject IJSRuntime js
+@attribute [Authorize]
+
+
+<h3>Cafe</h3>
+
+<a href="/cafes/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Cafe
+</a>
+<br />
+<br />
+
+@if (Cafes == null)
+{
+    <div class="alert alert-info">Loading Cafes</div>
+}
+else
+{
+    <table class ="table table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Date & Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cafe in Cafes)
+            {
+                <tr>
+                    <td>@cafe.Name</td> <td>@cafe.Description</td> <td>@cafe.DateUpdated</td>
+                    <td>
+                        <a href="/cafes/view/@cafe.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>    
+                        </a>
+                        <a href="/cafes/edit/@cafe.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>    
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(()=>Delete(cafe.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Cafe> Cafes;
+
+    protected async override Task OnInitializedAsync()
+    {
+        //_interceptor.MonitorEvent();
+        Cafes = await _client.GetFromJsonAsync<List<Cafe>>($"{Endpoints.CafesEndpoint}");
+    }
+
+    async Task Delete(int cafeId)
+    {
+        var cafe = Cafes.First(q => q.Id == cafeId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {cafe.Name}?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.CafesEndpoint}/{cafeId}");
+            await OnInitializedAsync();
+        }
+    }
+
+    
+    //public void Dispose()
+   // {
+    //    _interceptor.DisposeEvent();
+    //}
+    
+   
+
+}

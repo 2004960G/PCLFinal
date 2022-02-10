@@ -1,0 +1,72 @@
+﻿@page "/dinners/"
+@using PCL.Shared.Domain
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+
+
+<h3>Dinners</h3>
+
+<a href="/dinners/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Dinner
+</a>
+<br />
+<br />
+
+@if (Dinners == null)
+{
+    <div class="alert alert-info">Loading Dinners</div>
+}
+else
+{
+    <table class ="table table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Date & Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dinner in Dinners)
+            {
+                <tr>
+                    <td>@dinner.Name</td> <td>@dinner.Description</td> <td>@dinner.DateUpdated</td>
+                    <td>
+                        <a href="/dinners/view/@dinner.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>    
+                        </a>
+                        <a href="/dinners/edit/@dinner.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>    
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(()=>Delete(dinner.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Dinner> Dinners;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Dinners = await _client.GetFromJsonAsync<List<Dinner>>($"{Endpoints.DinnersEndpoint}");
+    }
+
+    async Task Delete(int dinnerId)
+    {
+        var dinner = Dinners.First(q => q.Id == dinnerId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {dinner.Name}?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.DinnersEndpoint}/{dinnerId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

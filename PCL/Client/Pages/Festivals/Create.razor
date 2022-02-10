@@ -1,0 +1,18 @@
+﻿@page "/festivals/create"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>Create</h3>
+
+<FormComponent ButtonText="Create Festival" festival="festival" OnValidSubmit="@CreateFestival" />
+
+@code {
+    Festival festival = new Festival();
+
+    private async Task CreateFestival()
+    {
+        await _client.PostAsJsonAsync(Endpoints.FestivalsEndpoint, festival);
+        _navManager.NavigateTo("/festivals/");
+    }
+
+}

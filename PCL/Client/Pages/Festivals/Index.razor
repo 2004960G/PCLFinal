@@ -1,0 +1,71 @@
+﻿@page "/festivals/"
+@inject HttpClient _client 
+@inject IJSRuntime js
+@attribute [Authorize]
+
+<h3>Festivlas</h3>
+
+<a href="/festivals/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New festival
+</a>
+<br />
+<br />
+
+@if (Festivals == null)
+{
+    <div class=" alert alert-info">Loading Festivals</div>
+}
+else
+{
+    <table class=" table table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Date & Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var festival in Festivals)
+            {
+                <tr>
+                    <td>@festival.Name</td> <td>@festival.Description</td><td>@festival.DateUpdated</td>
+                    <td>
+                        <a href="/festivals/view/@festival.Id" class="btn btn-primary">
+                            <span class=" oi oi-book"></span>    
+                        </a>
+                        <a href="/festivals/edit/@festival.Id" class="btn btn-warning">
+                            <span class=" oi oi-pencil"></span>    
+                        </a>
+                        <button class="btn btn-danger" @onclick="(()=>Delete(festival.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Festival> Festivals;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Festivals = await _client.GetFromJsonAsync<List<Festival>>($"{Endpoints.FestivalsEndpoint}");
+    }
+
+    async Task Delete(int festivalId)
+    {
+        var festival = Festivals.First(q => q.Id == festivalId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {festival.Name} ?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.FestivalsEndpoint}/{festivalId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}
